@@ -21,6 +21,7 @@ koreader-base: koreader-base.o einkfb.o pdf.o blitbuffer.o drawcontext.o koptcon
 		mupdfimg.o \
 		pic.o \
 		pic_jpeg.o \
+		$(K2PDFOPTLIB) \
 		$(MUPDFLIBS) \
 		$(THIRDPARTYLIBS) \
 		djvu.o \
@@ -30,11 +31,12 @@ koreader-base: koreader-base.o einkfb.o pdf.o blitbuffer.o drawcontext.o koptcon
 		$(LDFLAGS) \
 		-Wl,-rpath=$(LIBDIR)/ \
 		-o $@ \
-		-lm -ldl -lpthread -lk2pdfopt -ldjvulibre -lluajit-5.1 -lcrengine \
+		-lm -ldl -lpthread -ldjvulibre -lluajit-5.1 -lcrengine \
 		-L$(MUPDFLIBDIR) -L$(LIBDIR) \
 		$(CRE_3RD_LIBS) \
 		$(EMU_LDFLAGS) \
-		$(DYNAMICLIBSTDCPP)
+		$(DYNAMICLIBSTDCPP) \
+	    -pg
 
 extr:	extr.o $(MUPDFLIBS) $(THIRDPARTYLIBS)
 	$(CC) $(CFLAGS) extr.o $(MUPDFLIBS) $(THIRDPARTYLIBS) -lm -o extr
@@ -156,8 +158,8 @@ $(POPENNSLIB):
 	$(MAKE) -j$(PROCESSORS) -C $(POPENNSDIR) CC="$(CC)" AR="$(AR)"
 
 $(K2PDFOPTLIB):
-	$(MAKE) -j$(PROCESSORS) -C $(K2PDFOPTLIBDIR) BUILDMODE=shared CC="$(CC)" CFLAGS="$(CFLAGS) -O3" AR="$(AR)" all
+	$(MAKE) -j$(PROCESSORS) -C $(K2PDFOPTLIBDIR) BUILDMODE=static CC="$(CC)" CFLAGS="$(CFLAGS) -pg" AR="$(AR)" all
 	test -d $(LIBDIR) || mkdir $(LIBDIR)
-	cp -a $(K2PDFOPTLIBDIR)/libk2pdfopt.so* $(LIBDIR)
+	cp -a $(K2PDFOPTLIBDIR)/libk2pdfopt.* $(LIBDIR)
 
 thirdparty: $(MUPDFLIBS) $(THIRDPARTYLIBS) $(LUALIB) $(DJVULIBS) $(CRELIB) $(CRE_3RD_LIBS) $(POPENNSLIB) $(K2PDFOPTLIB)
